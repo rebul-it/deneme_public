@@ -1,0 +1,26 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - 17.0dev
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Sync files to server
+      run: |
+        rsync -avz --delete \
+          -e "ssh -o StrictHostKeyChecking=no" \
+          ./ \
+          ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST_TEST }}:/githubtest
